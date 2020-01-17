@@ -3635,47 +3635,146 @@ entreprise . catégorie d'activité . libérale règlementée:
     Liste des activités libérales: https://bpifrance-creation.fr/encyclopedie/trouver-proteger-tester-son-idee/verifiertester-son-idee/liste-professions-liberales
 
 entreprise . catégorie d'activité . libérale règlementée . type d'activité libérale règlementée:
+  applicable si: entreprise . catégorie d'activité . libérale règlementée
+  question: S'agit-il de l'une des activités suivantes ?
   formule:
     une possibilité:
       choix obligatoire: oui
       possibilités:
-        - Administrateur judiciaire
-        - Agent général d'assurance
-        - Architecte
-        - Architecte d'intérieur
-        - Avocat
-        - Avocat au conseil d'Etat et à la Cour de Cassation
-        - Avoué auprès des cours d'appel
-        - Chiropracteur
-        - Chirurgien-dentiste
-        - Commissaire aux comptes
-        - Commissaire-priseur
-        - Conseil en investissements financiers
-        - Conseil en propriété industrielle
-        - Diététicien
-        - Ergothérapeute
-        - Expert agricole, foncier et expert forestier
-        - Expert devant les tribunaux
-        - Expert-comptable
-        - Géomètre-expert
-        - Greffier auprès des tribunaux de commerce
-        - Huissier de justice
-        - Infirmier libéral
-        - Directeur de laboratoire d'analyses médicales
-        - Mandataire judiciaire
-        - Mandataire judiciaire à la protecion des majeurs
-        - Masseur-kinésithérapeute
-        - Médecin
-        - Notaire
-        - Orthophoniste
-        - Orthoptiste
-        - Ostéopathe
-        - Pédicure-podologue
-        - Psychologue
-        - Psychomotricien
-        - Psychothérapeute
-        - Sage-femme
-        - Vétérinaire
+        # - Administrateur judiciaire
+        # - Agent général d'assurance
+        # - Architecte
+        # - Architecte d'intérieur
+        - avocat
+        # - Avocat au conseil d'Etat et à la Cour de Cassation
+        # - Avoué auprès des cours d'appel
+        # - Chiropracteur
+        # - Chirurgien-dentiste
+        # - Commissaire aux comptes
+        # - Commissaire-priseur
+        # - Conseil en investissements financiers
+        # - Conseil en propriété industrielle
+        # - Diététicien
+        # - Ergothérapeute
+        # - Expert agricole, foncier et expert forestier
+        # - Expert devant les tribunaux
+        # - Expert-comptable
+        # - Géomètre-expert
+        # - Greffier auprès des tribunaux de commerce
+        # - Huissier de justice
+        # - Infirmier libéral
+        # - Directeur de laboratoire d'analyses médicales
+        # - Mandataire judiciaire
+        # - Mandataire judiciaire à la protecion des majeurs
+        # - Masseur-kinésithérapeute
+        # - Médecin
+        # - Notaire
+        # - Orthophoniste
+        # - Orthoptiste
+        # - Ostéopathe
+        # - Pédicure-podologue
+        # - Psychologue
+        # - Psychomotricien
+        # - Psychothérapeute
+        # - Sage-femme
+        # - Vétérinaire
+
+entreprise . catégorie d'activité . libérale règlementée . type d'activité libérale règlementée . avocat:
+  formule: type d'activité libérale règlementée = 'avocat'
+
+dirigeant . indépendant . libérale règlementée:
+
+dirigeant . indépendant . libérale règlementée . avocat:
+  applicable si: entreprise . catégorie d'activité . libérale règlementée . type d'activité libérale règlementée . avocat
+  rend non applicable:
+    - entreprise . rattachée à la CIPAV
+    - conjoint collaborateur . cotisations
+
+dirigeant . indépendant . libérale règlementée . avocat . cotisations:
+  formule: 
+    somme:
+      - retraite base
+      - retraite complémentaire
+
+dirigeant . indépendant . libérale règlementée . avocat . cotisations . retraite base:
+  applicable si: entreprise . catégorie d'activité . libérale règlementée . type d'activité libérale règlementée . avocat
+  remplace: cotisations et contributions . cotisations . retraite de base
+  formule:
+    somme:
+      - cotisation forfaitaire
+      - cotisation proportionnelle
+    
+dirigeant . indépendant . libérale règlementée . avocat . cotisations . retraite base . cotisation forfaitaire:
+  unité: €/an
+  formule:
+    variations:
+      - si: entreprise . durée d'activité < 1 an
+        alors: 290
+      - si: entreprise . durée d'activité < 2 ans
+        alors: 581
+      - si: entreprise . durée d'activité < 3 ans
+        alors: 912
+      - si: entreprise . durée d'activité < 5 ans
+        alors: 1242
+      - sinon: 1586
+
+dirigeant . indépendant . libérale règlementée . avocat . cotisations . retraite base . cotisation proportionnelle:
+  formule:
+    multiplication:
+      assiette:
+        variations:
+          - si: entreprise . durée d'activité < 2 an
+            alors: 19% * plafond sécurité sociale temps plein [€/an]
+          - sinon: 
+              encadrement:
+                valeur: revenu professionnel
+                plafond: 291718 €/an
+      taux: 3.1%
+
+dirigeant . indépendant . libérale règlementée . avocat . cotisations . retraite complémentaire:
+  applicable si: entreprise . catégorie d'activité . libérale règlementée . type d'activité libérale règlementée . avocat
+  remplace: cotisations et contributions . cotisations . retraite complémentaire
+  formule:
+    barème:
+      assiette: revenu professionnel
+      multiplicateur: multiplicateur
+      tranches:
+        - en-dessous de: 1
+          taux: 4%
+        - de: 1
+          à: 2
+          taux: 8%
+        - de: 2
+          à: 3
+          taux: 9.2%
+        - de: 3
+          à: 4
+          taux: 10.4%
+        - de: 4
+          à: 5
+          taux: 11.6%
+
+dirigeant . indépendant . libérale règlementée . avocat . cotisations . retraite complémentaire . multiplicateur:
+  formule: 41674 €/an
+
+dirigeant . indépendant . libérale règlementée . avocat . cotisations . invalidité décès:
+  applicable si: entreprise . catégorie d'activité . libérale règlementée . type d'activité libérale règlementée . avocat
+  remplace: cotisations et contributions . cotisations . invalidité et décès
+  formule:
+    somme:
+      - recouvrée auprès de l'avocat
+      - recouvrée auprès du barreau
+
+dirigeant . indépendant . libérale règlementée . avocat . cotisations . invalidité décès . recouvrée auprès de l'avocat:
+  unité: €/an
+  formule:
+    variations:
+      - si: entreprise . durée d'activité < 5 ans
+        alors: 55
+      - sinon: 137
+
+dirigeant . indépendant . libérale règlementée . avocat . cotisations . invalidité décès . recouvrée auprès du barreau:
+  formule: 161 €/an
 
 entreprise . catégorie d'activité . débit de tabac:
   applicable si: catégorie d'activité = 'commerciale ou industrielle'
@@ -4155,7 +4254,7 @@ dirigeant . indépendant . cotisations et contributions . exonérations . invali
     - cotisations . maladie
     - cotisations . indemnités journalières maladie
     - cotisations . retraite complémentaire
-  
+
 situation personnelle . IJSS:
   titre: indemnités journalières de sécurité sociale
   description: |
