@@ -1,0 +1,25 @@
+catégories:
+  - nom: Formes de travail
+    icône: 📃
+  - nom: Formes sociales
+    icône: 🏢
+  - nom: Aides
+    icône: 🦿
+  - nom: Cotisations sociales
+    icône: ☂
+  - nom: Conventions collectives
+    icône: 📚
+    contenu:
+      - Hôtel café restaurant (HCR)
+      - Optique
+      - Sportifs
+      - Intermittents du spectacle
+      - BTP
+  - nom: Rémunération
+    icône: 💶
+  - nom: Conditions de travail
+    icône: ⏲
+  - nom: Fiscalité société
+    icône: 🏛
+  - nom: Fiscalité particulier
+    icône: 👨‍👩‍👧‍👦

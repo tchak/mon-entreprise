@@ -5,12 +5,15 @@ import { EngineContext } from 'Components/utils/EngineContext'
 import { ScrollToTop } from 'Components/utils/Scroll'
 import { SitePathsContext } from 'Components/utils/SitePathsContext'
 import { Documentation, getDocumentationSiteMap } from 'publicodes'
-import React, { useCallback, useContext, useMemo } from 'react'
+import React, { useCallback, useContext, useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
-import { Redirect, useLocation } from 'react-router-dom'
+import { Redirect, useLocation, Link } from 'react-router-dom'
 import { RootState } from 'Reducers/rootReducer'
-import SearchBar from 'Components/SearchBar'
+import emoji from 'react-easy-emoji'
+import couvertureLegislative from '../../../rules/couverture-legislative.yaml'
+import styled from 'styled-components'
+import animate from 'Components/ui/animate'
 
 export default function RulePage() {
 	const currentSimulation = useSelector(
@@ -69,13 +72,71 @@ function BackToSimulation() {
 }
 
 function DocumentationLanding() {
+	const sitePaths = useContext(SitePathsContext)
+	const { pathname } = useLocation()
+	const [currentlyOpenAccordeon, setCurrentlyOpenAccordeon] = useState()
 	return (
 		<>
+			<ScrollToTop key={pathname} />
 			<h1>
-				<Trans i18nKey="page.documentation.title">Documentation</Trans>
+				<Trans i18nKey="page.documentation.title">
+					Couverture législative <>{emoji('⚖')}</>
+				</Trans>
 			</h1>
-			<p>Explorez toutes les règles de la documentation</p>
-			<SearchBar showListByDefault={true} />
+			<p>
+				Cette page référence les dispositifs existants dans la législation
+				française en matière de droit de la sécurité sociale, droit fiscal, et
+				plus partiellement en droit du travail. Cette liste n'est pas exhaustive
+				mais permet d'avoir un aperçu synthétique des sujets couverts et de ceux
+				non couverts par{' '}
+				<Link to={sitePaths.simulateurs.index}>nos simulateurs</Link>.
+			</p>
+			<div className="ui__ card light-border">
+				{couvertureLegislative.catégories.map(({ nom, icône, contenu }) => {
+					const isOpen = currentlyOpenAccordeon === nom
+					return (
+						<CategorySection key={nom} className={isOpen ? 'isOpen' : ''}>
+							<h3
+								onClick={() => setCurrentlyOpenAccordeon(isOpen ? null : nom)}
+							>
+								{emoji(icône)} {nom}
+							</h3>
+							{isOpen && (
+								<animate.fromTop>
+									<ul>
+										{contenu?.map(line => (
+											<li key={line}>{line}</li>
+										))}
+									</ul>
+								</animate.fromTop>
+							)}
+						</CategorySection>
+					)
+				})}
+			</div>
 		</>
 	)
 }
+
+const CategorySection = styled.div`
+	border-top: 2px solid var(--lighterColor);
+
+	&:first-child {
+		border-top: none;
+	}
+
+	h3 {
+		cursor: pointer;
+	}
+
+	h3:after {
+		display: block;
+		content: '↓';
+		float: right;
+		transition: transform 0.4s ease-in-out;
+	}
+
+	&.isOpen h3:after {
+		transform: rotate(180deg);
+	}
+`
