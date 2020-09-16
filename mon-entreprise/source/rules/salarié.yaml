@@ -8,6 +8,7 @@ contrat salarié:
         - CDI
         - CDD
         - apprentissage
+        - professionnalisation
         - stage
   par défaut: "'CDI'"
   description: |
@@ -991,6 +992,13 @@ contrat salarié . apprentissage . ancienneté . moins de trois ans:
 contrat salarié . apprentissage . ancienneté . moins de quatre ans:
   formule: ancienneté = 'moins de quatre ans'
 
+contrat salarié . professionnalisation:
+  description: >-
+    Le contrat de professionnalisation est un contrat de travail en alternance
+    réservé à un public prioritaire : jeunes de 16 à 25 ans dans le cadre de
+    leur formation initiale, chômeurs, bénéficiaires du RSA, ASS ou AAH.
+  formule: contrat salarié = 'professionnalisation'
+
 contrat salarié . stage:
   description: |
     Un employeur qui accueille un stagiaire doit lui verser une gratification minimale. Celle-ci est en partie exonérée de cotisations sociales.
@@ -1855,7 +1863,11 @@ contrat salarié . aides employeur . aide exceptionnelle à l'embauche d'apprent
     Bac.
   applicable si:
     toutes ces conditions:
-      - apprentissage
+      - une de ces conditions:
+          - apprentissage
+          - toutes ces conditions:
+              - professionnalisation
+              - jeune de moins de 30 ans
       - ancienneté . date d'embauche >= 01/07/2020
       - ancienneté . date d'embauche <= 28/02/2021
   formule:
@@ -1869,7 +1881,13 @@ contrat salarié . aides employeur . aide exceptionnelle à l'embauche d'apprent
 
 contrat salarié . jeune de moins de 26 ans:
   question: Le salarié embauché a-t'il moins de 26 ans ?
+  non applicable si: professionnalisation
   par défaut: non
+
+contrat salarié . jeune de moins de 30 ans:
+  question: Le salarié embauché a-t'il moins de 30 ans ?
+  applicable si: professionnalisation
+  par défaut: oui
 
 contrat salarié . aides employeur . aide exceptionnelle à l'embauche des jeunes:
   non applicable si: aides employeur . emploi franc
