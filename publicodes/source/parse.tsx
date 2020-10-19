@@ -1,6 +1,3 @@
-// This should be the new way to implement mecanisms
-// In a specific file
-// TODO import them automatically
 import { Grammar, Parser } from 'nearley'
 import {
 	add,
@@ -38,7 +35,7 @@ import régularisation from './mecanisms/régularisation'
 import { mecanismSum } from './mecanisms/sum'
 import { mecanismSynchronisation } from './mecanisms/synchronisation'
 import tauxProgressif from './mecanisms/tauxProgressif'
-import { decompose } from './mecanisms/utils'
+import { decompose } from './mecanisms/composantes'
 import variableTemporelle from './mecanisms/variableTemporelle'
 import variations, { devariate } from './mecanisms/variations'
 import { parseReferenceTransforms } from './parseReference'

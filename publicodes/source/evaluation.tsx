@@ -1,17 +1,17 @@
-import {
-	add,
-	evolve,
-	filter,
-	fromPairs,
-	keys,
-	map,
-	mergeWith,
-	reduce,
-	dissoc
-} from 'ramda'
+import { add, evolve, fromPairs, keys, map, mergeWith, reduce } from 'ramda'
 import React from 'react'
 import { typeWarning } from './error'
 import { convertNodeToUnit, simplifyNodeUnit } from './nodeUnits'
+import {
+	evaluateReference,
+	evaluateReferenceTransforms
+} from './evaluateReference'
+import {
+	evaluateRule,
+	evaluateFormula,
+	evaluateDisabledBy,
+	evaluateCondition
+} from './evaluateRule'
 import {
 	concatTemporals,
 	liftTemporalNode,
@@ -21,7 +21,7 @@ import {
 	temporalAverage,
 	zipTemporals
 } from './temporal'
-import { EvaluatedNode, ParsedRule, ParsedRules } from './types'
+import { EvaluatedNode } from './types'
 
 export const makeJsx = (node: EvaluatedNode): JSX.Element => {
 	const Component = node.jsx
@@ -38,6 +38,15 @@ export const mergeMissing = (left, right) =>
 	mergeWith(add, left || {}, right || {})
 
 export const evaluateNode = (cache, situation, parsedRules, node) => {
+	if (node.nodeKind && evaluationFunctions[node.nodeKind]) {
+		return evaluationFunctions[node.nodeKind](
+			cache,
+			situation,
+			parsedRules,
+			node
+		)
+	}
+	// TODO: Temporary fallback
 	return node.evaluate(cache, situation, parsedRules, node)
 }
 
@@ -106,34 +115,17 @@ export const evaluateArray = (reducer, start) => (
 	}
 }
 
-export const evaluateArrayWithFilter = (evaluationFilter, reducer, start) => (
-	cache,
-	situation,
-	parsedRules,
-	node
-) => {
-	return evaluateArray(reducer, start)(
-		cache,
-		dissoc('_meta.filter', situation),
-		parsedRules,
-		{
-			...node,
-			explanation: filter(evaluationFilter(situation), node.explanation)
-		}
-	)
-}
+export const defaultNode = (nodeValue: EvaluatedNode['nodeValue']) => ({
+	nodeValue,
+	// eslint-disable-next-line
+	jsx: ({ nodeValue }: EvaluatedNode) => (
+		<span className="value">{nodeValue}</span>
+	),
+	isDefault: true,
+	nodeKind: 'defaultNode'
+})
 
-export const defaultNode = (nodeValue: EvaluatedNode['nodeValue']) => {
-	const defaultNode = {
-		nodeValue,
-		// eslint-disable-next-line
-		jsx: ({ nodeValue }: EvaluatedNode) => (
-			<span className="value">{nodeValue}</span>
-		),
-		isDefault: true
-	}
-	return { ...defaultNode, evaluate: () => defaultNode }
-}
+const evaluateDefaultNode = (cache, situation, parsedRules, node) => node
 
 export const parseObject = (recurse, objectShape, value) => {
 	const recurseOne = key => defaultValue => {
@@ -211,4 +203,23 @@ export const evaluateObject = (objectShape, effect) => (
 		temporalValue,
 		temporalExplanation
 	}
+}
+
+const evaluationFunctions = {
+	rule: evaluateRule,
+	formula: evaluateFormula,
+	disabledBy: evaluateDisabledBy,
+	condition: evaluateCondition,
+	reference: evaluateReference,
+	referenceWithTransforms: evaluateReferenceTransforms,
+	defaultNode: evaluateDefaultNode
+}
+
+export function registerEvaluationFunction(nodeKind, evaluationFunction) {
+	if (evaluationFunctions[nodeKind]) {
+		throw Error(
+			`Multiple evaluation functions registered for the nodeKind \x1b[4m${nodeKind}`
+		)
+	}
+	evaluationFunctions[nodeKind] = evaluationFunction
 }
